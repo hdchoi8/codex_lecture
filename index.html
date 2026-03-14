@@ -532,6 +532,15 @@
             <h1 style="margin: 0;">Hello Feature2</h1>
           </main>
         `;
+      if (window.location.pathname === "/start_building") {
+        appWrap.innerHTML = `
+          <main style="min-height: 70vh; display: grid; place-items: center; gap: 16px;">
+            <h1>Hello World</h1>
+            <a class="cta" href="/feature1" id="feature1Link">feature1</a>
+          </main>
+        `;
+      } else if (window.location.pathname === "/feature1") {
+        appWrap.innerHTML = '<main style="min-height: 70vh; display: grid; place-items: center;"><h1>Hello Feature1</h1></main>';
       }
     }
 
@@ -547,6 +556,15 @@
         window.history.pushState({}, "", "/feature2");
         renderRoute();
       }
+    document.addEventListener("click", (event) => {
+      const feature1Link = event.target.closest("#feature1Link");
+      if (!feature1Link) {
+        return;
+      }
+
+      event.preventDefault();
+      window.history.pushState({}, "", "/feature1");
+      renderRoute();
     });
 
     window.addEventListener("popstate", renderRoute);
