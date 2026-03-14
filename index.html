@@ -492,8 +492,8 @@
     const storageKey = "codex-theme";
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
-    const startBuildingLink = document.getElementById("startBuildingLink");
     const appWrap = document.querySelector(".wrap");
+    const homeMarkup = appWrap.innerHTML;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const savedTheme = localStorage.getItem(storageKey);
     const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
@@ -504,23 +504,29 @@
       toggle.setAttribute("aria-label", theme === "dark" ? "라이트 모드로 변경" : "다크 모드로 변경");
     }
 
-    applyTheme(initialTheme);
-
-    toggle.addEventListener("click", () => {
-      const current = root.getAttribute("data-theme") || "dark";
-      const next = current === "dark" ? "light" : "dark";
-      applyTheme(next);
-      localStorage.setItem(storageKey, next);
-    });
+    function navigate(path) {
+      window.history.pushState({}, "", path);
+      renderRoute();
+    }
 
     function renderRoute() {
       const currentPath = window.location.pathname;
 
       if (currentPath === "/start_building") {
         appWrap.innerHTML = `
-          <main style="min-height: 70vh; display: grid; place-items: center; gap: 14px;">
+          <main style="min-height: 70vh; display: grid; place-items: center; gap: 16px;">
             <h1 style="margin: 0;">Hello World</h1>
+            <a class="cta" href="/feature1" id="feature1Link">feature1</a>
             <button id="feature2Button" class="cta" type="button">feature2</button>
+          </main>
+        `;
+        return;
+      }
+
+      if (currentPath === "/feature1") {
+        appWrap.innerHTML = `
+          <main style="min-height: 70vh; display: grid; place-items: center;">
+            <h1 style="margin: 0;">Hello Feature1</h1>
           </main>
         `;
         return;
@@ -532,41 +538,47 @@
             <h1 style="margin: 0;">Hello Feature2</h1>
           </main>
         `;
-      if (window.location.pathname === "/start_building") {
-        appWrap.innerHTML = `
-          <main style="min-height: 70vh; display: grid; place-items: center; gap: 16px;">
-            <h1>Hello World</h1>
-            <a class="cta" href="/feature1" id="feature1Link">feature1</a>
-          </main>
-        `;
-      } else if (window.location.pathname === "/feature1") {
-        appWrap.innerHTML = '<main style="min-height: 70vh; display: grid; place-items: center;"><h1>Hello Feature1</h1></main>';
-      }
-    }
-
-    startBuildingLink.addEventListener("click", (event) => {
-      event.preventDefault();
-      window.history.pushState({}, "", "/start_building");
-      renderRoute();
-    });
-
-    appWrap.addEventListener("click", (event) => {
-      const target = event.target;
-      if (target instanceof HTMLElement && target.id === "feature2Button") {
-        window.history.pushState({}, "", "/feature2");
-        renderRoute();
-      }
-    document.addEventListener("click", (event) => {
-      const feature1Link = event.target.closest("#feature1Link");
-      if (!feature1Link) {
         return;
       }
 
-      event.preventDefault();
-      window.history.pushState({}, "", "/feature1");
-      renderRoute();
+      appWrap.innerHTML = homeMarkup;
+    }
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const startLink = target.closest("#startBuildingLink");
+      if (startLink) {
+        event.preventDefault();
+        navigate("/start_building");
+        return;
+      }
+
+      const feature1Link = target.closest("#feature1Link");
+      if (feature1Link) {
+        event.preventDefault();
+        navigate("/feature1");
+        return;
+      }
+
+      const feature2Button = target.closest("#feature2Button");
+      if (feature2Button) {
+        event.preventDefault();
+        navigate("/feature2");
+      }
     });
 
+    toggle.addEventListener("click", () => {
+      const current = root.getAttribute("data-theme") || "dark";
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+      localStorage.setItem(storageKey, next);
+    });
+
+    applyTheme(initialTheme);
     window.addEventListener("popstate", renderRoute);
     renderRoute();
   </script>
