@@ -514,8 +514,24 @@
     });
 
     function renderRoute() {
-      if (window.location.pathname === "/start_building") {
-        appWrap.innerHTML = '<main style="min-height: 70vh; display: grid; place-items: center;"><h1>Hello World</h1></main>';
+      const currentPath = window.location.pathname;
+
+      if (currentPath === "/start_building") {
+        appWrap.innerHTML = `
+          <main style="min-height: 70vh; display: grid; place-items: center; gap: 14px;">
+            <h1 style="margin: 0;">Hello World</h1>
+            <button id="feature2Button" class="cta" type="button">feature2</button>
+          </main>
+        `;
+        return;
+      }
+
+      if (currentPath === "/feature2") {
+        appWrap.innerHTML = `
+          <main style="min-height: 70vh; display: grid; place-items: center;">
+            <h1 style="margin: 0;">Hello Feature2</h1>
+          </main>
+        `;
       }
     }
 
@@ -523,6 +539,14 @@
       event.preventDefault();
       window.history.pushState({}, "", "/start_building");
       renderRoute();
+    });
+
+    appWrap.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof HTMLElement && target.id === "feature2Button") {
+        window.history.pushState({}, "", "/feature2");
+        renderRoute();
+      }
     });
 
     window.addEventListener("popstate", renderRoute);
